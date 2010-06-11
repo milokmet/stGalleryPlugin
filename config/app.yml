@@ -1,0 +1,20 @@
+all:
+  st_gallery_plugin:
+    subdir:             gallery
+    thumbnail_width:    144
+    thumbnail_height:   108
+    thumbnail_prefix:   ~
+    thumbnail_suffix:   _tb
+    thumbnail_method:   center
+    preserve_source:    false
+    image_suffix:       ~
+    image_prefix:       ~
+    image_max_width:        1600
+    image_max_height:       1600
+    image_overlay:      %SF_WEB_DIR%/images/overlay.png
+    image_overlay_position: "top-right"
+    
+    image_overlay_positions:
+      
+      none:
+        credentials:

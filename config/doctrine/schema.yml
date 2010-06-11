@@ -1,0 +1,35 @@
+stPicture:
+  actAs:
+    - Timestampable
+  columns:
+    id:
+      type: integer(4)
+      autoincrement: true
+      primary: true
+    record_id:
+      type: integer(4)
+    record_model:
+      type: string(50)
+    position:
+      type: integer(4)
+    caption:
+      type: string(500)
+    image:
+      type: string(500)
+    image_width:
+      type: integer(3)
+    image_height:
+      type: integer(3)
+    thumbnail:
+      type: string(500)
+    thumbnail_width:
+      type: integer(3)
+    thumbnail_height:
+      type: integer(3)
+    source:
+      type: string(500)
+    is_published:
+      type: boolean
+      default: false
+    params:
+      type: array
