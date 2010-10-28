@@ -1,0 +1,8 @@
+all:
+  thumbnail:
+    width: 144
+    height: 104
+    quality: 85
+  image:
+    max_width: 1024
+    max_height: 1024

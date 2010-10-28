@@ -17,11 +17,41 @@ class PluginstPictureTable extends Doctrine_Table
         return Doctrine_Core::getTable('PluginstPicture');
     }
     
-    public function findAllForRecord(Doctrine_Record $record)
+    /**
+     * Returns all pictures for given record
+     * 
+     * @param $record
+     */
+    public function findAllForRecord(Doctrine_Record $record, $hydrationMode = null)
     {
-        return $this->createQuery('p')
-            ->addWhere('p.record_model = ?', get_class($record))
-            ->addWhere('p.record_id = ?', $record->get($record->getTable()->getIdentifier()))
-            ->execute();
+        return $this->createQueryForRecord($record)
+            ->execute(array(), $hydrationMode);
     }
+    
+    /**
+     * Returns all public pictures for given record
+     * 
+     * @param Doctrine_Record
+     * @param int Doctrine_Core::HYDRATION_MODE doctrine hydration mode
+     */
+    public function findAllPublicForRecord(Doctrine_Record $record, $hydrationMode = null)
+    {
+        return $this->createQueryForRecord($record)
+            ->addWhere('is_published = ?', true)
+            ->execute(array(), $hydrationMode);
+    }
+    
+    /**
+     * Returns Doctrine_Query for a given record
+     * 
+     * @param Doctrine_Record $record
+     */
+    protected function createQueryForRecord(Doctrine_Record $record)
+    {
+        return $this->createQuery('dctrn_find')
+            ->addWhere('record_model = ?', get_class($record))
+            ->addWhere('record_id = ?', $record->get($record->getTable()->getIdentifier()))
+            ->orderBy('position ASC, id ASC');
+    }
+    
 }

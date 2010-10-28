@@ -26,7 +26,13 @@ class stGalleryRouteCollection extends sfRouteCollection
             'column'  => isset($this->options['column']) ? $this->options['column'] : 'id',
             'model_methods' => array(),
             'requirements' => array(),
-            'segment_names' => array('edit' => 'edit', 'upload' => 'upload'),
+            'segment_names' => array(
+                'edit'   => 'edit', 
+                'upload' => 'upload', 
+                'delete' => 'delete',
+                'load'   => 'load',
+                'update' => 'update'
+            ),
             'default_params' => array(),
         ), $this->options);
         
@@ -50,7 +56,7 @@ class stGalleryRouteCollection extends sfRouteCollection
         // standard actions
         
         // object actions
-        $actions = array('edit', 'upload');
+        $actions = array('edit', 'save', 'upload', 'delete', 'load', 'update');
         foreach ($actions as $action)
         {
             $method = 'getRouteFor'.ucfirst($action);
@@ -72,6 +78,16 @@ class stGalleryRouteCollection extends sfRouteCollection
             array('model' => $this->options['model'], 'type' => 'object', 'method' => $this->options['model_methods']['object'], 'base_route_name' => $this->options['name'])
         );
     }
+
+    protected function getRouteForSave()
+    {
+        return new $this->routeClass(
+            sprintf('%s/:%s/%s.:sf_format', $this->options['prefix_path'], $this->options['column'], $this->options['segment_names']['edit']),
+            array_merge(array('module' => $this->options['module'], 'action' => $this->getActionMethod('save'), 'sf_format' => 'html'), $this->options['default_params']),
+            array_merge($this->options['requirements'], array('sf_method' => 'post')),
+            array('model' => $this->options['model'], 'type' => 'object', 'method' => $this->options['model_methods']['object'], 'base_route_name' => $this->options['name'])
+        );
+    }
     
     protected function getRouteForUpload()
     {
@@ -82,17 +98,37 @@ class stGalleryRouteCollection extends sfRouteCollection
             array('model' => $this->options['model'], 'type' => 'object', 'method' => $this->options['model_methods']['object'], 'base_route_name' => $this->options['name'])
         );
     }
-    
-    protected function getRouteForDelete()
+
+    protected function getRouteForLoad()
     {
         return new $this->routeClass(
-            sprintf('%s/:%s/%s.:sf_format', $this->options['prefix_path'], $this->options['column'], $this->options['segment_names']['delete']),
-            array_merge(),
-            array_merge(),
+            sprintf('%s/:%s/%s/:picture.:sf_format', $this->options['prefix_path'], $this->options['column'], $this->options['segment_names']['load']),
+            array_merge(array('module' => $this->options['module'], 'action' => 'loadPicture', 'sf_format' => 'html'), $this->options['default_params']),
+            array_merge($this->options['requirements'], array('sf_method' => 'get', 'picture' => '^\d+$')),
             array('model' => $this->options['model'], 'type' => 'object', 'method' => $this->options['model_methods']['object'], 'base_route_name' => $this->options['name'])
         );
     }
-    
+
+    protected function getRouteForDelete()
+    {
+        return new $this->routeClass(
+            sprintf('%s/:%s/%s/:picture.:sf_format', $this->options['prefix_path'], $this->options['column'], $this->options['segment_names']['delete']),
+            array_merge(array('module' => $this->options['module'], 'action'=> 'deletePicture', 'sf_format' => 'html'), $this->options['default_params']),
+            array_merge($this->options['requirements'], array('sf_method' => 'get', 'picture' => '^\d+$')),
+            array('model' => $this->options['model'], 'type' => 'object', 'method' => $this->options['model_methods']['object'], 'base_route_name' => $this->options['name'])
+        );
+    }
+
+    protected function getRouteForUpdate()
+    {
+        return new $this->routeClass(
+            sprintf('%s/:%s/%s/:picture.:sf_format', $this->options['prefix_path'], $this->options['column'], $this->options['segment_names']['update']),
+            array_merge(array('module' => $this->options['module'], 'action'=> 'updatePicture', 'sf_format' => 'html'), $this->options['default_params']),
+            array_merge($this->options['requirements'], array('sf_method' => 'post')),
+            array('model' => $this->options['model'], 'type' => 'object', 'method' => $this->options['model_methods']['object'], 'base_route_name' => $this->options['name'])
+        );
+    }
+
     protected function getRouteForObject($action, $methods)
     {
         return new $this->routeClass(
@@ -102,12 +138,12 @@ class stGalleryRouteCollection extends sfRouteCollection
             array('model' => $this->options['model'], 'type' => 'object', 'method' => $this->options['model_methods']['object'], 'base_route' => $this->options['name'])
         );
     }
-    
+
     protected function getRoute($action)
     {
         return 'edit' == $action ? $this->options['name'] : $this->options['name'].'_'.$action;
     }
-    
+
     protected function getActionMethod($action)
     {
         return 'list' == $action ? 'index' : $action;

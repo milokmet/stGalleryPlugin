@@ -65,4 +65,4 @@ foreach ($routes as $name => $route)
 }
 
 $t->is($match, null, '->generateRoutes() generates upload route that matches only on post method');
-var_dump($routes['test_upload']);
+$t->diag('wirte more test +');

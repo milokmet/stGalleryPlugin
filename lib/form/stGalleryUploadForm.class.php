@@ -25,8 +25,11 @@ class stGalleryUploadForm extends BaseForm
             )),
         ));
         
+        $this->widgetSchema->setLabels(array('files' => 'Upload files'));
+        
         // $this->validatorSchema->setPostValidator(new sfValidatorCallback(array('callback' => array($this, 'validateZippedFiles'))));
         
-        $this->widgetSchema->setNameFormat('st_gallery[%s]');
+        $this->widgetSchema->getFormFormatter()->setTranslationCatalogue('st_gallery');
+        $this->widgetSchema->setNameFormat('%s');
     }
 }

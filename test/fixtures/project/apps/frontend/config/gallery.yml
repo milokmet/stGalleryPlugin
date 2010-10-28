@@ -1,0 +1,21 @@
+all:
+  preserve_source: true
+  subdir: gallery
+  
+  image:
+    max_width:       ~
+    max_height:      ~
+  
+  thumbnail:
+    suffix:          _tb
+    width:           140
+    height:          108
+  
+  test_model:
+    thumbnail:
+      suffix:        _tmtb
+      width:         160
+      height:        120
+    image:
+      max_height:    180
+      max_width:     400

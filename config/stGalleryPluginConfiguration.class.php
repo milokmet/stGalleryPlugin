@@ -17,5 +17,9 @@ class stGalleryPluginConfiguration extends sfPluginConfiguration
    */
   public function initialize()
   {
+      if ($this->configuration instanceof sfApplicationConfiguration)
+      {
+          require_once($this->configuration->getConfigCache()->checkConfig('config/gallery.yml'));
+      }
   }
 }

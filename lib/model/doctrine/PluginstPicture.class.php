@@ -16,6 +16,42 @@ abstract class PluginstPicture extends BasestPicture
     
     protected $imageGeneated = false;
     
+    protected $tableizedRecordClass = false;
+    
+    public function getTableizedRecordClass()
+    {
+        if ($this->tableizedRecordClass === false)
+        {
+            $this->tableizedRecordClass = Doctrine_Inflector::tableize($this->record_model);
+        }
+        
+        return $this->tableizedRecordClass;
+    }
+    
+    public function getConfig($section, $key, $default=null)
+    {
+        if (($tb = $this->getTableizedRecordClass()) !== null)
+        {
+            return sfConfig::get('st_gallery_'.$tb.'_'.$section.'_'.$key, sfConfig::get('st_gallery_'.$section.'_'.$key, $default));
+        }
+        return sfConfig::get('st_gallery_'.$section.'_'.$key, $default);
+    }
+    
+    public function isPublished()
+    {
+        return $this->is_published;
+    }
+    
+    public function publish()
+    {
+        $this->is_published = true;
+    }
+    
+    public function unpublish()
+    {
+        $this->is_published = false;
+    }
+    
     public function setSource($image)
     {
         if (is_file($image))
@@ -33,14 +69,6 @@ abstract class PluginstPicture extends BasestPicture
         $this->removeFile('image');
         $this->removeFile('thumbnail');
         $this->removeFile('source');
-    }
-    
-    public function preSave($event)
-    {
-    }
-    
-    public function preUpdate($event)
-    {
     }
     
     public function postInsert($event)
@@ -76,7 +104,14 @@ abstract class PluginstPicture extends BasestPicture
      */
     public function setParamValue($param, $value)
     {
-        $this->params[$param] = $value;
+        $params = $this->_get('params');
+        if (!is_array($params) && $params !== null) {
+            $params = array($params);
+        }
+        
+        $params[$param] = $value;
+        
+        $this->_set('params', $params);
         
         return $this;
     }
@@ -90,9 +125,9 @@ abstract class PluginstPicture extends BasestPicture
         $ext = strrchr(basename($source), '.');
         
         return $dirName . DIRECTORY_SEPARATOR
-             . sfConfig::get('app_st_gallery_plugin_'.$column.'_prefix', null)
+             . $this->getConfig($column, 'prefix', null)
              . sprintf('%06d', $this->id)
-             . sfConfig::get('app_st_gallery_plugin_'.$column.'_suffix', '_'.$column)
+             . $this->getConfig($column, 'suffix', '_'.$column)
              . $ext;
     }
     
@@ -128,23 +163,39 @@ abstract class PluginstPicture extends BasestPicture
             return false;
         }
         
+        $maxWidth  = $this->getParamValue('max_width') ?
+            $this->getParamValue('max_width') : $this->getConfig('image', 'max_width', null);
+            
+        $maxHeight  = $this->getParamValue('max_height') ? 
+            $this->getParamValue('max_height') : $this->getConfig('image', 'max_height', null);
+            
         $image = new sfImage(sfConfig::get('sf_web_dir').$source);
         
         // resize image if necessary
-        $maxWidth  = sfConfig::get('app_st_gallery_plugin_image_max_width', null);
-        $maxHeight = sfConfig::get('app_st_gallery_plugin_image_max_height', null);
-
-        if ($maxWidth !== null && $maxWidth > $image->getWidth())
+        if ($maxWidth !== null && $maxWidth < $image->getWidth())
         {
-            $image->resize($maxWidth, null);
+            $image->resize($maxWidth, null, false, true);
         }
-        
-        if ($maxHeight !== null && $maxHeight > $image->getHeight())
+
+        if ($maxHeight !== null && $maxHeight < $image->getHeight())
         {
-            $image->resize(null, $maxHeight);
+            $image->resize(null, $maxHeight, false, true);
         }
         
         // add overlay if necessary
+        $overlay = $this->getConfig('image', 'overlay', null);
+        
+        if ($overlay !== null && is_file($overlay))
+        {
+            $position = $this->getParamValue('overlay_position') ?
+                $this->getParamValue('overlay_position') : $this->getConfig('image', 'overlay_position', 'top-right');
+            
+            if ($position !== 'none' && $position !== null)
+            {
+                $image->overlay(new sfImage($overlay), $position);
+            }
+        }
+               
         
         // saving file
         $relativeFile = $this->getFilePath($source, 'image'); 
@@ -170,12 +221,30 @@ abstract class PluginstPicture extends BasestPicture
         
         $source = $this->getSourcePicture();
         
+        if (!is_file(sfConfig::get('sf_web_dir').$source))
+        {
+            return false; 
+        }
+        
+        $modelPrefix = Doctrine_Inflector::tableize($this->record_model);
+
+        $width  = $this->getParamValue('thumbnail_width') ? 
+            $this->getParamValue('thumbnail_width') : $this->getConfig('thumbnail', 'width', 144);
+            
+        $height  = $this->getParamValue('thumbnail_height') ?
+            $this->getParamValue('thumbnail_height') : $this->getConfig('thumbnail', 'height', 108);
+        
+        $method = $this->getParamValue('thumbnail_method') ? 
+            $this->getParamValue('thumbnail_method') : $this->getConfig('thumbnail', 'method', 'center');
+        
+        $quality = $this->getParamValue('thumbnail_quality') ?
+            $this->getParamValue('thumbnail_quality') : $this->getConfig('thumbnail', 'quality', 80);
+            
         $image = new sfImage(sfConfig::get('sf_web_dir').$source);
         
-        $thumbnailMethod = $this->getParamValue('thumbnail_method') ? 
-            $this->getParamValue('thumbnail_method') : sfConfig::get('app_st_gallery_plugin_thumbnail_method', 'center');
+        $thumb = $image->thumbnail($width, $height, $method);
         
-        $thumb = $image->thumbnail(100, 80, $thumbnailMethod);
+        $thumb->setQuality($quality);
         
         $relativeFile = $this->getFilePath($source, 'thumbnail');
         

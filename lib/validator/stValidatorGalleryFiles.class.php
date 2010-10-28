@@ -32,7 +32,7 @@ class stValidatorGalleryFiles extends sfValidatorFile
         ));
         
         $this->addMessage('cant_open_zip', 'Failed to open a zip file.');
-        $this->addMessage('no_images_found', 'No images found in a zipped file.');
+        $this->addMessage('no_images_found', 'No images found in a zip file.');
     }
     
     
@@ -47,7 +47,7 @@ class stValidatorGalleryFiles extends sfValidatorFile
         }
         
         // unzip and check files
-        $images = array();$images = array();
+        $images = array();
         $class = $this->getOption('validated_file_class');
         
         $zip = new ZipArchive;
@@ -69,7 +69,7 @@ class stValidatorGalleryFiles extends sfValidatorFile
         {
             $stat = $zip->statIndex($i);
             
-            if ($stat['size'] > 0 && in_array(strrchr($stat['name'], '.'), array('.png', '.jpeg', '.jpg', '.gif')))
+            if ($stat['size'] > 0 && in_array(strtolower(strrchr($stat['name'], '.')), array('.png', '.jpeg', '.jpg', '.gif')))
             {
                 $tempFile = tempnam(sys_get_temp_dir(), 'stGal');
                 $this->tempFiles[] = $tempFile;
@@ -83,6 +83,7 @@ class stValidatorGalleryFiles extends sfValidatorFile
                 fclose($fpTmp);
                 
                 $mimeType = $this->getMimeType($tempFile, 'application/data');
+
                 if (in_array($mimeType, array_map('strtolower', $mimeTypes)))
                 {
                     $images[] = new $class(basename($stat['name']), $mimeType, $tempFile, filesize($tempFile), $this->getOption('path'));
@@ -94,7 +95,7 @@ class stValidatorGalleryFiles extends sfValidatorFile
                 }
             }
         }
-        
+
         $zip->close();
         
         if (count($images) === 0)

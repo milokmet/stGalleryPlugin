@@ -1,6 +1,7 @@
 stPicture:
   actAs:
     - Timestampable
+    - Guardstampable
   columns:
     id:
       type: integer(4)

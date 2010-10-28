@@ -1,0 +1,3 @@
+editSuccess:
+  stylesheets: [/stGalleryPlugin/css/gallery-admin.css, /stGalleryPlugin/css/gallery-admin-fixie.css: { condition: "lt IE 8" }]
+  javascripts: [/stGalleryPlugin/js/jquery.form.js, /stGalleryPlugin/js/jquery-ui-1.8.5.custom.min.js, /stGalleryPlugin/js/gallery-admin.js]

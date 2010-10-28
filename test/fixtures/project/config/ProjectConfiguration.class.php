@@ -18,7 +18,7 @@ class ProjectConfiguration extends sfProjectConfiguration
             'sfImageTransformPlugin',
         ));
         
-        $this->setPluginPath('sfImageTransformPlugin', dirname(__FILE__).'/../../../../sfImageTransformPlugin');
+        $this->setPluginPath('sfImageTransformPlugin', dirname(__FILE__).'/../../../../../sfImageTransformPlugin');
         $this->setPluginPath('stGalleryPlugin', dirname(__FILE__).'/../../../..');
     }
 }

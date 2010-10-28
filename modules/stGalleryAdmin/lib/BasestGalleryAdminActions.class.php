@@ -6,6 +6,12 @@ class BasestGalleryAdminActions extends sfActions
     {
         $this->record = $this->getRecord();
         $this->route  = $this->getRoute();
+        
+        if (!$this->record->userCanModify($this->getUser()))
+        {
+            $this->forward404();
+        }
+        
     }
     
     public function executeIndex(sfWebRequest $request)
@@ -17,45 +23,112 @@ class BasestGalleryAdminActions extends sfActions
     {
         $this->form = new stGalleryUploadForm(array(), array('path' => $this->getAbsolutePath()));
         $this->pictures = Doctrine_Core::getTable('stPicture')->findAllForRecord($this->record);
+        
+        if ($request->isMethod('save'))
+        {
+            $this->forward('stGalleryAdmin', 'save');
+        }
     }
     
-    public function executeSave(sfWebRequest $request)
+    public function executeSave(sfWebRequest $request)
     {
-        $this->setTemplate('edit');
+        $ids = explode(':', $request->getParameter('pictures', null));
+        $this->pictures = Doctrine_Core::getTable('stPicture')->findAllForRecord($this->record);
+        
+        $primaryKeys = $this->pictures->getPrimaryKeys();
+        
+        $primaryKeys = array_combine(array_values($primaryKeys), array_keys($primaryKeys));
+        
+        foreach ($ids as $i => $id)
+        {
+            $picture = $this->pictures[$primaryKeys[$id]]->setPosition($i);
+            if (!$picture->isPublished())
+            {
+                $picture->publish();
+            }
+        }
+        
+        $this->pictures->save();
+        
+        $this->redirect($this->route->getRouteForEdit(), array('id' => $this->record->id));
+    }
+    
+    public function executeLoadPicture(sfWebRequest $request)
+    {
+        $picture = $this->route->getPicture();
+        
+        return $this->renderText($this->getPartial('picture_box', array('picture' => $picture, 'route' => $this->route)));
     }
     
     public function executeDeletePicture(sfWebRequest $request)
     {
-        
+        $picture = $this->route->getPicture();
+        if ($picture instanceof stPicture)
+        {
+            $picture->delete();
+        }
+        else
+        {
+            return $this->renderText('0');
+        }
+
+        return $this->renderText('1');
     }
 
+    public function executeUpdatePicture(sfWebRequest $request)
+    {
+        $picture = $this->route->getPicture();
+        
+        $picture->caption = $request->getParameter('caption');
+        
+        $picture->save();
+        
+        return $this->renderText($picture->id);
+    }
+    
     public function executeUploadPictures(sfWebRequest $request)
     {
-        $this->form = new stGalleryUploadForm(array(), array('path' => $this->getAbsolutePath()));
-        
-        $this->form->bind($request->getParameter($this->form->getName()), $request->getFiles($this->form->getName()));
+        $validator = new stValidatorGalleryFiles(array('path' => $this->getAbsolutePath()));
 
-        if ($this->form->isValid())
+        $response = array('pictures' => array());
+        try
         {
-            $values = $this->form->getValues();
-            $newPictures = array();
-            foreach ($values['files'] as $key => $file)
+            $files = $validator->doClean($request->getFiles('files'));
+            
+            foreach ($files as $key => $file)
             {
                 $savedFile = $file->getPath() . DIRECTORY_SEPARATOR . $file->save();
                 
-                $newPictures[$key] = new stPicture();
-                $newPictures[$key]->fromArray(array(
+                $picture = new stPicture();
+                $picture->fromArray(array(
                     'record_model' => get_class($this->getRecord()),
-                    'record_id' => $this->getRecord()->getId(),
-                    'params' => array(),
+                    'record_id' => $this->getRecord()->get($this->getRecord()->getTable()->getIdentifier()),
+                    'params' => array()
                 ));
-                $newPictures[$key]->setSource($savedFile);
-                $newPictures[$key]->save();
+                
+                $picture->setSource($savedFile);
+                $picture->save();
+                
+                $response['pictures'][] = $picture->getId();
             }
         }
+        catch (sfValidatorError $e)
+        {
+            $i18n = $this->getContext()->getI18n();
+            $response['error'] = $i18n->__($e->getMessage(), array(), 'st_gallery');
+        }
         
-        echo $this->form;
-        exit;
+        if ($request->hasParameter('submit'))
+        {
+            return $this->redirect($this->getRoute()->getRouteForEdit(), $this->getRecord());
+        }
+        else
+        {
+            sfConfig::set('sf_web_debug', false);
+            
+            $this->getResponse()->setContentType('application/javascript');
+            return $this->renderText(json_encode($response));
+        }
     }
     
     protected function getAbsolutePath()

@@ -1,0 +1,6 @@
+config/gallery.yml:
+  class: stGalleryConfigHandler
+  param:
+    prefix: st_gallery_
+  file: <?php echo realpath(dirname(__FILE__) . '/../lib/config/stGalleryConfigHandler.class.php'); ?>
+  
