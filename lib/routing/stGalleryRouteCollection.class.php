@@ -34,6 +34,7 @@ class stGalleryRouteCollection extends sfRouteCollection
                 'update' => 'update'
             ),
             'default_params' => array(),
+            'record_route' => sfInflector::underscore($this->options['model']).'_edit', 
         ), $this->options);
         
         $this->options['requirements'] = array_merge(array($this->options['column'] => 'id' == $this->options['column'] ? '\d+' : null), $this->options['requirements']);
@@ -75,7 +76,7 @@ class stGalleryRouteCollection extends sfRouteCollection
             sprintf('%s/:%s/%s.:sf_format', $this->options['prefix_path'], $this->options['column'], $this->options['segment_names']['edit']),
             array_merge(array('module' => $this->options['module'], 'action' => $this->getActionMethod('edit'), 'sf_format' => 'html'), $this->options['default_params']),
             array_merge($this->options['requirements'], array('sf_method' => 'get')),
-            array('model' => $this->options['model'], 'type' => 'object', 'method' => $this->options['model_methods']['object'], 'base_route_name' => $this->options['name'])
+            array('model' => $this->options['model'], 'type' => 'object', 'method' => $this->options['model_methods']['object'], 'base_route_name' => $this->options['name'], 'record_route' => $this->options['record_route'])
         );
     }
 
@@ -85,7 +86,7 @@ class stGalleryRouteCollection extends sfRouteCollection
             sprintf('%s/:%s/%s.:sf_format', $this->options['prefix_path'], $this->options['column'], $this->options['segment_names']['edit']),
             array_merge(array('module' => $this->options['module'], 'action' => $this->getActionMethod('save'), 'sf_format' => 'html'), $this->options['default_params']),
             array_merge($this->options['requirements'], array('sf_method' => 'post')),
-            array('model' => $this->options['model'], 'type' => 'object', 'method' => $this->options['model_methods']['object'], 'base_route_name' => $this->options['name'])
+            array('model' => $this->options['model'], 'type' => 'object', 'method' => $this->options['model_methods']['object'], 'base_route_name' => $this->options['name'], 'record_route' => $this->options['record_route'])
         );
     }
     
@@ -95,7 +96,7 @@ class stGalleryRouteCollection extends sfRouteCollection
             sprintf('%s/:%s/%s.:sf_format', $this->options['prefix_path'], $this->options['column'], $this->options['segment_names']['upload']),
             array_merge(array('module' => $this->options['module'], 'action' => 'uploadPictures', 'sf_format' => 'html'), $this->options['default_params']),
             array_merge($this->options['requirements'], array('sf_method' => 'post')),
-            array('model' => $this->options['model'], 'type' => 'object', 'method' => $this->options['model_methods']['object'], 'base_route_name' => $this->options['name'])
+            array('model' => $this->options['model'], 'type' => 'object', 'method' => $this->options['model_methods']['object'], 'base_route_name' => $this->options['name'], 'record_route' => $this->options['record_route'])
         );
     }
 
@@ -105,7 +106,7 @@ class stGalleryRouteCollection extends sfRouteCollection
             sprintf('%s/:%s/%s/:picture.:sf_format', $this->options['prefix_path'], $this->options['column'], $this->options['segment_names']['load']),
             array_merge(array('module' => $this->options['module'], 'action' => 'loadPicture', 'sf_format' => 'html'), $this->options['default_params']),
             array_merge($this->options['requirements'], array('sf_method' => 'get', 'picture' => '^\d+$')),
-            array('model' => $this->options['model'], 'type' => 'object', 'method' => $this->options['model_methods']['object'], 'base_route_name' => $this->options['name'])
+            array('model' => $this->options['model'], 'type' => 'object', 'method' => $this->options['model_methods']['object'], 'base_route_name' => $this->options['name'], 'record_route' => $this->options['record_route'])
         );
     }
 
@@ -115,7 +116,7 @@ class stGalleryRouteCollection extends sfRouteCollection
             sprintf('%s/:%s/%s/:picture.:sf_format', $this->options['prefix_path'], $this->options['column'], $this->options['segment_names']['delete']),
             array_merge(array('module' => $this->options['module'], 'action'=> 'deletePicture', 'sf_format' => 'html'), $this->options['default_params']),
             array_merge($this->options['requirements'], array('sf_method' => 'get', 'picture' => '^\d+$')),
-            array('model' => $this->options['model'], 'type' => 'object', 'method' => $this->options['model_methods']['object'], 'base_route_name' => $this->options['name'])
+            array('model' => $this->options['model'], 'type' => 'object', 'method' => $this->options['model_methods']['object'], 'base_route_name' => $this->options['name'], 'record_route' => $this->options['record_route'])
         );
     }
 
@@ -125,7 +126,7 @@ class stGalleryRouteCollection extends sfRouteCollection
             sprintf('%s/:%s/%s/:picture.:sf_format', $this->options['prefix_path'], $this->options['column'], $this->options['segment_names']['update']),
             array_merge(array('module' => $this->options['module'], 'action'=> 'updatePicture', 'sf_format' => 'html'), $this->options['default_params']),
             array_merge($this->options['requirements'], array('sf_method' => 'post')),
-            array('model' => $this->options['model'], 'type' => 'object', 'method' => $this->options['model_methods']['object'], 'base_route_name' => $this->options['name'])
+            array('model' => $this->options['model'], 'type' => 'object', 'method' => $this->options['model_methods']['object'], 'base_route_name' => $this->options['name'], 'record_route' => $this->options['record_route'])
         );
     }
 
@@ -135,7 +136,7 @@ class stGalleryRouteCollection extends sfRouteCollection
             sprintf('%s/:%s/%s.:sf_format', $this->options['prefix_path'], $this->options['column'], $action),
             array_merge(array('module' => $this->options['module'], 'action' => $action, 'sf_format' => 'html'), $this->options['default_params']),
             array_merge($this->options['requirements'], array('sf_method' => $methods)),
-            array('model' => $this->options['model'], 'type' => 'object', 'method' => $this->options['model_methods']['object'], 'base_route' => $this->options['name'])
+            array('model' => $this->options['model'], 'type' => 'object', 'method' => $this->options['model_methods']['object'], 'base_route' => $this->options['name'], 'record_route' => $this->options['record_route'])
         );
     }
 

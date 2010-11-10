@@ -1,6 +1,13 @@
 <div id='sf_admin_container'>
   <h1><?php echo __('title_editing_gallery_'.sfInflector::underscore(get_class($record)), array('%%record%%' => (string)$record), sfInflector::underscore(get_class($record))); ?></h1>
 <div id='sf_admin_content'>
+<?php if ($sf_user->hasFlash('notice')): $message = (array)$sf_user->getFlash('notice'); ?>
+    <div class='notice'><?php echo __($message[0], isset($message[1]) ? $message[1] : array(), isset($message[2]) ? $message[2] : null); ?></div>
+<?php endif; ?>
+
+<?php if ($sf_user->hasFlash('error')): $message = (array)$sf_user->getFlash('error'); ?>
+    <div class='error'><?php echo __($message[0], isset($message[1]) ? $message[1] : array(), isset($message[2]) ? $message[2] : null); ?></div>
+<?php endif; ?>
 <?php include_partial('stGalleryAdmin/upload_form', array('route' => $route, 'form' => $form)); ?>
 
 <ul class='pictures' id='st_gallery_pictures'>
@@ -29,6 +36,7 @@ stGalleryAdminMessages = {
       <input type='hidden' name='pictures' value='juhuu' />
       <ul class='sf_admin_actions'>
         <li class='sf_admin_action_publish'><input type='submit' value='Publikovať obrázky a uložiť poradie' /></li>
+        <li><?php echo link_to(__('back to '.sfInflector::underscore(get_class($record)).' %%record%%', array('%%record%%' => $record), 'st_gallery'), $route->getRouteForRecord(), $record); ?></li>
       </ul>  
     </form>
   </div>

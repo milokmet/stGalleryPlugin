@@ -50,6 +50,8 @@ class BasestGalleryAdminActions extends sfActions
         
         $this->pictures->save();
         
+        $this->getUser()->setFlash('notice', array('notice_gallery_update', array(), 'st_gallery'));
+        
         $this->redirect($this->route->getRouteForEdit(), array('id' => $this->record->id));
     }
     

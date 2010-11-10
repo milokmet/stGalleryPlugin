@@ -42,4 +42,9 @@ class stGalleryDoctrineRoute extends sfDoctrineRoute
     {
         return $this->options['base_route_name'].'_update';
     }
+    
+    public function getRouteForRecord()
+    {
+        return $this->options['record_route'];
+    }
 }
