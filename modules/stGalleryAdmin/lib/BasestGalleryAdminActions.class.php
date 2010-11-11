@@ -128,7 +128,7 @@ class BasestGalleryAdminActions extends sfActions
         {
             sfConfig::set('sf_web_debug', false);
             
-            $this->getResponse()->setContentType('application/javascript');
+            $this->getResponse()->setContentType('text/plain');
             return $this->renderText(json_encode($response));
         }
     }

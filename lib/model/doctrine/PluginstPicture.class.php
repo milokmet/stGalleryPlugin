@@ -246,6 +246,9 @@ abstract class PluginstPicture extends BasestPicture
         
         $thumb->setQuality($quality);
         
+        $this->thumbnail_width = $thumb->getWidth();
+        $this->thumbnail_height = $thumb->getHeight();
+        
         $relativeFile = $this->getFilePath($source, 'thumbnail');
         
         $thumb->saveAs(sfConfig::get('sf_web_dir').$relativeFile);
